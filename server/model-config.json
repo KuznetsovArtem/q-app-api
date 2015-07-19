@@ -32,7 +32,11 @@
     "dataSource": "db",
     "public": false
   },
-  "person": {
+  "srvcs": {
+    "dataSource": "db",
+    "public": true
+  },
+  "orgs": {
     "dataSource": "db",
     "public": true
   }

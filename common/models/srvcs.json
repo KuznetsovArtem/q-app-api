@@ -1,17 +1,25 @@
 {
-  "name": "person",
-  "plural": "people",
-  "base": "Model",
+  "name": "srvcs",
+  "plural": "srvcsList",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
   "properties": {
-    "firsname": {
+    "id": {
+      "type": "number",
+      "required": true
+    },
+    "org_id": {
+      "type": "number",
+      "required": true
+    },
+    "name": {
       "type": "string",
       "required": true
     },
-    "lastname": {
+    "description": {
       "type": "string",
       "required": true
     }
