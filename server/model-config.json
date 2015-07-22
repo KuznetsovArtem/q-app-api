@@ -39,5 +39,11 @@
   "orgs": {
     "dataSource": "db",
     "public": true
+  },
+  "customers": {
+    "dataSource": "qdb",
+    "public": true,
+    "$promise": {},
+    "$resolved": true
   }
 }
