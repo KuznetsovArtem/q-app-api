@@ -14,7 +14,8 @@
     ]
   },
   "User": {
-    "dataSource": "db"
+    "dataSource": "db",
+    "public": false
   },
   "AccessToken": {
     "dataSource": "db",
@@ -34,16 +35,24 @@
   },
   "srvcs": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "orgs": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "customers": {
     "dataSource": "qdb",
     "public": true,
     "$promise": {},
     "$resolved": true
+  },
+  "organizations": {
+    "dataSource": "qdb",
+    "public": true
+  },
+  "services": {
+    "dataSource": null,
+    "public": true
   }
 }

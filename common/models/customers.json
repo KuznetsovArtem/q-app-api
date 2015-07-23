@@ -1,6 +1,6 @@
 {
   "name": "customers",
-  "base": "PersistedModel",
+  "base": "User",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -10,9 +10,12 @@
       "type": "string",
       "required": true
     },
-    "login": {
+    "username": {
       "type": "string",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "login"
+      }
     },
     "password": {
       "type": "string",
@@ -32,7 +35,6 @@
       "postgresql": {
         "columnName": "customerid"
       }
-
     }
   },
   "validations": [],

@@ -1,0 +1,44 @@
+{
+  "name": "organizations",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table" : "organisations"
+    }
+  },
+  "properties": {
+    "id": {
+      "id": true,
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "organisationid"
+      }
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "postgresql": {
+        "columnName": "orgname"
+      }
+    },
+    "description": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "description"
+      }
+    },
+    "server ": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "orgserver"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": []
+}

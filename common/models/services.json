@@ -1,0 +1,22 @@
+{
+  "name": "services",
+  "base": "Model",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "org_id": {
+      "type": "number",
+      "required": true
+    },
+    "data": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": []
+}
