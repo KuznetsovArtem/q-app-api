@@ -3,7 +3,7 @@
  */
 
 module.exports = function(app) {
-    app.dataSources.db.automigrate('orgs', function(err) {
+/*    app.dataSources.db.automigrate('orgs', function(err) {
         if (err) throw err;
 
         app.models.orgs.create([
@@ -19,5 +19,5 @@ module.exports = function(app) {
 
             console.log('Models created: \n', org);
         });
-    });
+    });*/
 };
