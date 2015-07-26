@@ -5,13 +5,13 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table" : "organisations"
+      "table": "organisations"
     }
   },
   "properties": {
     "id": {
-      "id": true,
       "type": "number",
+      "id": true,
       "required": true,
       "postgresql": {
         "columnName": "organisationid"

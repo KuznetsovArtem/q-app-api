@@ -1,8 +1,9 @@
 {
-  "name": "services",
+  "name": "services_v2",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
+    "validateUpsert": true,
     "postgresql": {
       "schema": "public",
       "table": "historyshort"

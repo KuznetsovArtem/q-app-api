@@ -1,55 +1,51 @@
 module.exports = function(Services) {
 
+  Services.disableRemoteMethod("create", true);
+  //Services.disableRemoteMethod("upsert", true);
+  Services.disableRemoteMethod("updateAll", true);
+  Services.disableRemoteMethod("updateAttributes", false);
+
+  Services.disableRemoteMethod("find", true);
+  //Services.disableRemoteMethod("findById", true);
+  Services.disableRemoteMethod("findOne", true);
+
+  //Services.disableRemoteMethod("deleteById", true);
+
+  Services.disableRemoteMethod("confirm", true);
+  Services.disableRemoteMethod("count", true);
+  Services.disableRemoteMethod("exists", true);
+  Services.disableRemoteMethod("resetPassword", true);
+  Services.disableRemoteMethod("createChangeStream", true);
+
+  Services.disableRemoteMethod('__count__accessTokens', false);
+  Services.disableRemoteMethod('__create__accessTokens', false);
+  Services.disableRemoteMethod('__delete__accessTokens', false);
+  Services.disableRemoteMethod('__destroyById__accessTokens', false);
+  Services.disableRemoteMethod('__findById__accessTokens', false);
+  Services.disableRemoteMethod('__get__accessTokens', false);
+  Services.disableRemoteMethod('__updateById__accessTokens', false);
 
 
-  Services.get = function(next) {
-    var request = require("request")
-
-    // TODO: get from orgs;`
-    var url = "http://109.108.87.13:8094/QueueService.svc/json_pre_reg/GetServiceList?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}&serviceCenterId=1"
-
-    request({
-      url: url,
-      json: true
-    }, function (error, response, body) {
-      if (!error && response.statusCode === 200) {
-        console.log(body) // Print the json response
-        next(null, body);
+  Services.getUserServices = function(userId, cb) {
+    this.find({where: {userId: userId}}, function(err, services) {
+      if (err) {
+        cb(err);
+      } else {
+        cb(null, services);
       }
     });
-  }
-
-
-  Services.testdata = function(next) {
-    var data = [{
-      id: 1,
-      name: 'test'
-    },{
-      id: 2,
-      name: 'test2'
-    },{
-      id: 3,
-      name: 'test3'
-    }];
-
-
-
-    next(null, data);
   };
 
-  Services.remoteMethod(
-    'testdata',
-    {
-      http: {path: '/testdata', verb: 'get'},
-      returns: {arg: 'testdata', type: 'object'}
-    }
-  );
+  // srvcenterid -> org_id
 
-  Services.remoteMethod(
-    'get', {
-      http: {path: '/get', verb: 'get'},
-      returns: {arg: 'servicesList', type: 'object'}
-    }
-  );
+
+  Services.remoteMethod('getUserServices', {
+    description: 'Get all services for user',
+    accepts: [
+      {arg: 'userId', type: 'number'}
+    ],
+    returns: {arg: 'data', type: 'object'},
+    http: {path: '/get/:userId', verb: 'get'}
+  });
 
 };

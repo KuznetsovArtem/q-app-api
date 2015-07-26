@@ -52,7 +52,11 @@
     "public": true
   },
   "services": {
-    "dataSource": null,
+    "dataSource": "qdb",
     "public": true
+  },
+  "services_v2": {
+    "dataSource": "qdb",
+    "public": false
   }
 }
