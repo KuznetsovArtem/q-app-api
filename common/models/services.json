@@ -9,12 +9,19 @@
     }
   },
   "properties": {
-    "jobguid": {
+    "id": {
       "type": "String",
       "id": 1,
       "required": true,
       "postgresql": {
         "columnName": "jobguid"
+      }
+    },
+    "orderid": {
+      "type": "String",
+      "required": true,
+      "postgresql": {
+        "columnName": "orderguid"
       }
     },
     "userId": {
@@ -79,7 +86,29 @@
       "postgresql": {
         "columnName": "updatetime"
       }
+    },
+    "dateTime": {
+      "type": "String",
+      "required": false,
+      "postgresql": {
+        "columnName": "desiredtime"
+      }
+    },
+    "status": {
+      "type": "Number",
+      "required": false,
+      "postgresql": {
+        "columnName": "statusid"
+      }
+    },
+    "causeid": {
+      "type": "Number",
+      "required": false,
+      "postgresql": {
+        "columnName": "causeid"
+      }
     }
+
   },
   "validations": [],
   "relations": {},

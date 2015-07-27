@@ -3,7 +3,7 @@ module.exports = function(Services) {
   Services.disableRemoteMethod("create", true);
   //Services.disableRemoteMethod("upsert", true);
   Services.disableRemoteMethod("updateAll", true);
-  Services.disableRemoteMethod("updateAttributes", false);
+  //Services.disableRemoteMethod("updateAttributes", false);
 
   Services.disableRemoteMethod("find", true);
   //Services.disableRemoteMethod("findById", true);
@@ -44,7 +44,7 @@ module.exports = function(Services) {
     accepts: [
       {arg: 'userId', type: 'number'}
     ],
-    returns: {arg: 'data', type: 'object'},
+    returns: {type: 'object', root: true},
     http: {path: '/get/:userId', verb: 'get'}
   });
 

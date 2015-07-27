@@ -17,6 +17,13 @@
         "columnName": "organisationid"
       }
     },
+    "guid": {
+      "type": "String",
+      "required": true,
+      "postgresql": {
+        "columnName": "objectguid"
+      }
+    },
     "name": {
       "type": "string",
       "required": true,
@@ -30,7 +37,7 @@
         "columnName": "description"
       }
     },
-    "server ": {
+    "server": {
       "type": "string",
       "postgresql": {
         "columnName": "orgserver"

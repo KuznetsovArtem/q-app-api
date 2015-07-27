@@ -28,6 +28,7 @@ module.exports = function(Customers) {
   Customers.disableRemoteMethod("count", true);
   Customers.disableRemoteMethod("exists", true);
   Customers.disableRemoteMethod("resetPassword", true);
+  Customers.disableRemoteMethod("createChangeStream", true);
 
   Customers.disableRemoteMethod('__count__accessTokens', false);
   Customers.disableRemoteMethod('__create__accessTokens', false);

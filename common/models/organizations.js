@@ -16,6 +16,7 @@ module.exports = function(Organizations) {
   Organizations.disableRemoteMethod("count", true);
   Organizations.disableRemoteMethod("exists", true);
   Organizations.disableRemoteMethod("resetPassword", true);
+  Organizations.disableRemoteMethod("createChangeStream", true);
 
   Organizations.disableRemoteMethod('__count__accessTokens', false);
   Organizations.disableRemoteMethod('__create__accessTokens', false);
@@ -25,19 +26,20 @@ module.exports = function(Organizations) {
   Organizations.disableRemoteMethod('__get__accessTokens', false);
   Organizations.disableRemoteMethod('__updateById__accessTokens', false);
 
+  var request = require("request")
+
   Organizations.getServices = function(id, cb) {
-    var request = require("request")
     var self = this;
 
-    self.findOne({where: {id: id}}, function(err, user) {
+    self.findOne({where: {id: id}}, function(err, org) {
       if(err) {
           throw(err);
       } else {
-        // TODO: fill req data;
         var url = [
-          "http://109.108.87.13:8094/QueueService.svc/json_pre_reg/GetServiceList",
-          "?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}",
-          "&serviceCenterId=" + id
+          org.server,
+          "/QueueService.svc/json_pre_reg/GetServiceList",
+          "?organisationGuid={"+ org.guid +"}",
+          "&serviceCenterId=" + id // TODO: ?
         ].join('');
 
         request({
@@ -45,94 +47,175 @@ module.exports = function(Organizations) {
           json: true
         }, function (error, response, body) {
           if (!error && response.statusCode === 200) {
-            cb(null, body);
+            cb(null, body.d);
           }
         });
       }
     });
   };
 
-  Organizations.getServiceDates = function(org_id, srv_id, cb) {
-    var request = require("request")
+  Organizations.getServiceDates = function(orgId, srvId, cb) {
+    var self = this;
 
-    var url = [
-      "http://109.108.87.13:8094/QueueService.svc/json_pre_reg/GetDayList",
-      "?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}",
-      "&serviceCenterId=" + org_id,
-      "&serviceId=" + srv_id||2
-    ].join('');
+    self.findOne({where: {id: orgId}}, function(err, org) {
+      if(err) {
+          throw(err);
+      } else {
+        var url = [
+          org.server,
+          "/QueueService.svc/json_pre_reg/GetDayList",
+          "?organisationGuid={"+ org.guid +"}",
+          "&serviceCenterId=" + orgId,
+          "&serviceId=" + srvId||2
+        ].join('');
 
-    console.log(url);
-
-    request({
-      url: url,
-      json: true
-    }, function (error, response, body) {
-      if (!error && response.statusCode === 200) {
-        cb(null, body);
+        request({
+          url: url,
+          json: true
+        }, function (error, response, body) {
+          if (!error && response.statusCode === 200) {
+            cb(null, body.d);
+          }
+        });
       }
     });
   };
 
 
-  Organizations.getServiceAvbTime = function(org_id, srv_id, ts, cb) {
-    var request = require("request")
+  Organizations.getServiceAvbTime = function(orgId, srvId, date, cb) {
+    var self = this;
 
-    // http://109.108.87.13:8094/QueueService.svc/json_pre_reg/GetTimeList?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}&serviceCenterId=1&serviceId=2&date=2015-07-22
-    // TODO: get from orgs;`
-    var url = "http://109.108.87.13:8094/QueueService.svc/json_pre_reg/GetServiceList?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}&serviceCenterId=1"
+    self.findOne({where: {id: orgId}}, function(err, org) {
+      if(err) {
+          throw(err);
+      } else {
+        var url = [
+          org.server,
+          "/QueueService.svc/json_pre_reg/GetTimeList",
+          "?organisationGuid={"+ org.guid +"}",
+          "&serviceCenterId=" + orgId,
+          "&serviceId=" + srvId||2,
+          "&date=" + date // 2015-07-22
+        ].join('');
 
-    request({
-      url: url,
-      json: true
-    }, function (error, response, body) {
-      if (!error && response.statusCode === 200) {
-        cb(null, body);
+        request({
+          url: url,
+          json: true
+        }, function (error, response, body) {
+          if (!error && response.statusCode === 200) {
+            cb(null, body.d);
+          }
+        });
       }
     });
+
   };
 
-  Organizations.registerService = function(cb) {
-    //http://109.108.87.13:8094/QueueService.svc/json_pre_reg/RegCustomer?organisationGuid={0B6A3E72-8604-4EB6-BD11-4C7F0A126B62}&serviceCenterId=1&serviceId=2&date=2015-07-22%2016:00:00
+  Organizations.registerService = function(orgId, orgName, srvId, srvName, dateTime, userId, cb) {
+    var app = require('../../server/server');
+    var ServicesModel = app.models.services;
+    var self = this;
+
+    self.findOne({where: {id: orgId}}, function(err, org) {
+      if(err) {
+          throw(err);
+      } else {
+        var url = [
+          org.server,
+          "/QueueService.svc/json_pre_reg/RegCustomer",
+          "?organisationGuid={"+ org.guid +"}",
+          "&serviceCenterId=" + orgId,
+          "&serviceId=" + srvId||2,
+          "&date=" + dateTime // 2015-07-29 16:00:00
+        ].join('');
+
+        request({
+          url: url,
+          json: true
+        }, function (error, response, data) {
+          if (!error && response.statusCode === 200) {
+
+            //cb(null, data.d);
+            /*
+            {
+              "__type": "CustomerRegistration:#QueueState.Entities",
+              "CustOrderGuid": "4b9ddd68-f9a1-4a04-b445-59afa858797b",
+              "CustReceiptLetter": "",
+              "CustReceiptNum": 5
+            }*/
+
+            ServicesModel.create({
+              "id": data.d.CustOrderGuid,
+              "orderid": data.d.CustOrderGuid,
+              "userId": userId,
+              "paytoolid": 1,
+              "amount": 0,
+              "organisationid": orgId,
+              "orgId": orgId,
+              "orgName": orgName,
+              "serviceid": srvId,
+              "serviceName": srvName,
+              "dateTime": dateTime,
+              "status": 0,
+              "causeid": 0
+              //"updatetime": ""
+            }, function(err, service) {
+              if (err) throw err;
+
+              console.log(' created: \n', service);
+              cb(null, service);
+            });
+
+          }
+
+        });
+      }
+    });
   }
 
   Organizations.remoteMethod('getServices', {
-    description: 'Get all services for org_id',
+    description: 'Get all services for orgId',
     accepts: {arg: 'id', type: 'number'},
-    returns: {arg: 'servicesList', type: 'object'},
+    //returns: {arg: 'servicesList', type: 'object'},
+    returns: {type: 'object', root: true},
     http: {path: '/:id/services', verb: 'get'}
   });
 
   Organizations.remoteMethod('getServiceDates', {
-    description: 'Get avb dates for org_id/srv_id',
+    description: 'Get avb dates for orgId/srvId',
     accepts: [
-      {arg: 'org_id', type: 'number'},
-      {arg: 'srv_id', type: 'number'}
+      {arg: 'orgId', type: 'number'},
+      {arg: 'srvId', type: 'number'}
     ],
-    returns: {arg: 'data', type: 'object'},
-    http: {path: '/:org_id/services/:srv_id', verb: 'get'}
+    //returns: {arg: 'data', type: 'object'},
+    returns: {type: 'object', root: true},
+    http: {path: '/:orgId/services/:srvId', verb: 'get'}
   });
 
   Organizations.remoteMethod('getServiceAvbTime', {
-    description: 'Get avb time for org_id/srv_id/selected date',
+    description: 'Get avb time for orgId/srvId/selected date',
     accepts: [
-      {arg: 'org_id', type: 'number'},
-      {arg: 'srv_id', type: 'number'},
-      {arg: 'ts', type: 'number'}
+      {arg: 'orgId', type: 'number'},
+      {arg: 'srvId', type: 'number'},
+      {arg: 'date', type: 'string'}
     ],
-    returns: {arg: 'data', type: 'object'},
-    http   : {path: '/:org_id/services/:srv_id/:ts', verb: 'get'}
+    //returns: {arg: 'data', type: 'object'},
+    returns: {type: 'object', root: true},
+    http   : {path: '/:orgId/services/:srvId/:ts', verb: 'get'}
   });
 
   Organizations.remoteMethod('registerService', {
     description: 'Register new service for user',
     accepts: [
-      {arg: 'org_id', type: 'number'},
-      {arg: 'srv_id', type: 'number'},
-      {arg: 'ts', type: 'number'},
-      {arg: 'user_id', type: 'number'}
+      {arg: 'orgId', type: 'number'},
+      {arg: 'orgName', type: 'string'},
+      {arg: 'srvId', type: 'number'},
+      {arg: 'srvName', type: 'string'},
+      {arg: 'dateTime', type: 'string'},
+      {arg: 'userId', type: 'number'}
     ],
-    returns: {arg: 'data', type: 'object'},
+    returns: {type: 'object', root: true},
+    //returns: {arg: 'data', type: 'object'},
     http   : {path: '/registerService', verb: 'post'}
   });
 
