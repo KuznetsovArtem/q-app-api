@@ -26,9 +26,36 @@ module.exports = function(Organizations) {
   Organizations.disableRemoteMethod('__get__accessTokens', false);
   Organizations.disableRemoteMethod('__updateById__accessTokens', false);
 
-  var request = require("request")
+  var request = require("request");
 
-  Organizations.getServices = function(id, cb) {
+  // TODO: rm same code, rewrite to promises;
+
+  Organizations.getServiceCenters = function(orgId, cb) {
+    var self = this;
+
+    self.findOne({where: {id: orgId}}, function(err, org) {
+      if(err) {
+          throw(err);
+      } else {
+        var url = [
+          org.server,
+          "/QueueService.svc/json_pre_reg/GetServiceCenterList",
+          "?organisationGuid={"+ org.guid +"}"
+        ].join('');
+
+        request({
+          url: url,
+          json: true
+        }, function (error, response, body) {
+          if (!error && response.statusCode === 200) {
+            cb(null, body.d);
+          }
+        });
+      }
+    });
+  };
+
+  Organizations.getServices = function(id, ctrId, cb) {
     var self = this;
 
     self.findOne({where: {id: id}}, function(err, org) {
@@ -39,7 +66,7 @@ module.exports = function(Organizations) {
           org.server,
           "/QueueService.svc/json_pre_reg/GetServiceList",
           "?organisationGuid={"+ org.guid +"}",
-          "&serviceCenterId=" + id // TODO: ?
+          "&serviceCenterId=" + ctrId
         ].join('');
 
         request({
@@ -54,7 +81,7 @@ module.exports = function(Organizations) {
     });
   };
 
-  Organizations.getServiceDates = function(orgId, srvId, cb) {
+  Organizations.getServiceDates = function(orgId, ctrId, srvId, cb) {
     var self = this;
 
     self.findOne({where: {id: orgId}}, function(err, org) {
@@ -65,8 +92,8 @@ module.exports = function(Organizations) {
           org.server,
           "/QueueService.svc/json_pre_reg/GetDayList",
           "?organisationGuid={"+ org.guid +"}",
-          "&serviceCenterId=" + orgId,
-          "&serviceId=" + srvId||2
+          "&serviceCenterId=" + ctrId,
+          "&serviceId=" + srvId
         ].join('');
 
         request({
@@ -82,7 +109,7 @@ module.exports = function(Organizations) {
   };
 
 
-  Organizations.getServiceAvbTime = function(orgId, srvId, date, cb) {
+  Organizations.getServiceAvbTime = function(orgId, ctrId, srvId, date, cb) {
     var self = this;
 
     self.findOne({where: {id: orgId}}, function(err, org) {
@@ -94,7 +121,7 @@ module.exports = function(Organizations) {
           "/QueueService.svc/json_pre_reg/GetTimeList",
           "?organisationGuid={"+ org.guid +"}",
           "&serviceCenterId=" + orgId,
-          "&serviceId=" + srvId||2,
+          "&serviceId=" + ctrId,
           "&date=" + date // 2015-07-22
         ].join('');
 
@@ -111,7 +138,7 @@ module.exports = function(Organizations) {
 
   };
 
-  Organizations.registerService = function(orgId, orgName, srvId, srvName, dateTime, userId, cb) {
+  Organizations.registerService = function(orgId, orgName, ctrId, ctrName, srvId, srvName, dateTime, userId, cb) {
     var app = require('../../server/server');
     var ServicesModel = app.models.services;
     var self = this;
@@ -125,7 +152,7 @@ module.exports = function(Organizations) {
           "/QueueService.svc/json_pre_reg/RegCustomer",
           "?organisationGuid={"+ org.guid +"}",
           "&serviceCenterId=" + orgId,
-          "&serviceId=" + srvId||2,
+          "&serviceId=" + ctrId,
           "&date=" + dateTime // 2015-07-29 16:00:00
         ].join('');
 
@@ -162,7 +189,6 @@ module.exports = function(Organizations) {
             }, function(err, service) {
               if (err) throw err;
 
-              console.log(' created: \n', service);
               cb(null, service);
             });
 
@@ -173,10 +199,19 @@ module.exports = function(Organizations) {
     });
   }
 
-  Organizations.remoteMethod('getServices', {
-    description: 'Get all services for orgId',
+  Organizations.remoteMethod('getServiceCenters', {
+    description: 'Get all service centers for orgId',
     accepts: {arg: 'id', type: 'number'},
-    //returns: {arg: 'servicesList', type: 'object'},
+    returns: {type: 'object', root: true},
+    http: {path: '/:id', verb: 'get'}
+  });
+
+  Organizations.remoteMethod('getServices', {
+    description: 'Get all services for ctrId',
+    accepts: [
+      {arg: 'id', type: 'number'},
+      {arg: 'ctrId', type: 'number'}
+    ],
     returns: {type: 'object', root: true},
     http: {path: '/:id/services', verb: 'get'}
   });
@@ -185,6 +220,7 @@ module.exports = function(Organizations) {
     description: 'Get avb dates for orgId/srvId',
     accepts: [
       {arg: 'orgId', type: 'number'},
+      {arg: 'ctrId', type: 'number'},
       {arg: 'srvId', type: 'number'}
     ],
     //returns: {arg: 'data', type: 'object'},
@@ -196,12 +232,13 @@ module.exports = function(Organizations) {
     description: 'Get avb time for orgId/srvId/selected date',
     accepts: [
       {arg: 'orgId', type: 'number'},
+      {arg: 'ctrId', type: 'number'},
       {arg: 'srvId', type: 'number'},
       {arg: 'date', type: 'string'}
     ],
     //returns: {arg: 'data', type: 'object'},
     returns: {type: 'object', root: true},
-    http   : {path: '/:orgId/services/:srvId/:ts', verb: 'get'}
+    http   : {path: '/:orgId/services/:srvId/:date', verb: 'get'}
   });
 
   Organizations.remoteMethod('registerService', {
@@ -209,6 +246,8 @@ module.exports = function(Organizations) {
     accepts: [
       {arg: 'orgId', type: 'number'},
       {arg: 'orgName', type: 'string'},
+      {arg: 'ctrId', type: 'number'},
+      {arg: 'ctrName', type: 'string'},
       {arg: 'srvId', type: 'number'},
       {arg: 'srvName', type: 'string'},
       {arg: 'dateTime', type: 'string'},
