@@ -120,8 +120,8 @@ module.exports = function(Organizations) {
           org.server,
           "/QueueService.svc/json_pre_reg/GetTimeList",
           "?organisationGuid={"+ org.guid +"}",
-          "&serviceCenterId=" + orgId,
-          "&serviceId=" + ctrId,
+          "&serviceCenterId=" + ctrId,
+          "&serviceId=" + srvId,
           "&date=" + date // 2015-07-22
         ].join('');
 
@@ -147,12 +147,13 @@ module.exports = function(Organizations) {
       if(err) {
           throw(err);
       } else {
+        if(!org) { return cb('no data');}
         var url = [
           org.server,
           "/QueueService.svc/json_pre_reg/RegCustomer",
           "?organisationGuid={"+ org.guid +"}",
-          "&serviceCenterId=" + orgId,
-          "&serviceId=" + ctrId,
+          "&serviceCenterId=" + ctrId,
+          "&serviceId=" + srvId,
           "&date=" + dateTime // 2015-07-29 16:00:00
         ].join('');
 
@@ -177,11 +178,12 @@ module.exports = function(Organizations) {
               "userId": userId,
               "paytoolid": 1,
               "amount": 0,
-              "organisationid": orgId,
               "orgId": orgId,
               "orgName": orgName,
-              "serviceid": srvId,
-              "serviceName": srvName,
+              "ctrId": ctrId,
+              "ctrName": ctrName,
+              "srvId": srvId,
+              "srvName": srvName,
               "dateTime": dateTime,
               "status": 0,
               "causeid": 0
@@ -197,7 +199,7 @@ module.exports = function(Organizations) {
         });
       }
     });
-  }
+  };
 
   Organizations.remoteMethod('getServiceCenters', {
     description: 'Get all service centers for orgId',
@@ -223,7 +225,6 @@ module.exports = function(Organizations) {
       {arg: 'ctrId', type: 'number'},
       {arg: 'srvId', type: 'number'}
     ],
-    //returns: {arg: 'data', type: 'object'},
     returns: {type: 'object', root: true},
     http: {path: '/:orgId/services/:srvId', verb: 'get'}
   });
@@ -254,7 +255,6 @@ module.exports = function(Organizations) {
       {arg: 'userId', type: 'number'}
     ],
     returns: {type: 'object', root: true},
-    //returns: {arg: 'data', type: 'object'},
     http   : {path: '/registerService', verb: 'post'}
   });
 

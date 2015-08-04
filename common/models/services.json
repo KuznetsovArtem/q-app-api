@@ -45,35 +45,42 @@
         "columnName": "amount"
       }
     },
-    "organisationid": {
+    "orgId": {
       "type": "Number",
       "required": false,
       "postgresql": {
         "columnName": "organisationid"
       }
     },
-    "orgId": {
+    "orgName": {
+      "type": "String",
+      "required": false,
+      "postgresql": {
+        "columnName": "organisationdesc"
+      }
+    },
+    "ctrId": {
       "type": "Number",
       "required": true,
       "postgresql": {
         "columnName": "srvcenterid"
       }
     },
-    "orgName": {
+    "ctrName": {
       "type": "String",
       "required": true,
       "postgresql": {
         "columnName": "srvcenterdesc"
       }
     },
-    "serviceid": {
+    "srvId": {
       "type": "Number",
       "required": true,
       "postgresql": {
         "columnName": "serviceid"
       }
     },
-    "serviceName": {
+    "srvName": {
       "type": "String",
       "required": true,
       "postgresql": {

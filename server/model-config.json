@@ -33,14 +33,6 @@
     "dataSource": "db",
     "public": false
   },
-  "srvcs": {
-    "dataSource": "db",
-    "public": false
-  },
-  "orgs": {
-    "dataSource": "db",
-    "public": false
-  },
   "customers": {
     "dataSource": "qdb",
     "public": true,
@@ -54,9 +46,5 @@
   "services": {
     "dataSource": "qdb",
     "public": true
-  },
-  "services_v2": {
-    "dataSource": "qdb",
-    "public": false
   }
 }
