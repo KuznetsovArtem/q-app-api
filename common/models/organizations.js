@@ -162,8 +162,6 @@ module.exports = function(Organizations) {
           json: true
         }, function (error, response, data) {
           if (!error && response.statusCode === 200) {
-
-            //cb(null, data.d);
             /*
             {
               "__type": "CustomerRegistration:#QueueState.Entities",
@@ -191,6 +189,8 @@ module.exports = function(Organizations) {
             }, function(err, service) {
               if (err) throw err;
 
+              service.receiptLetter = data.d.CustReceiptLetter;
+              service.receiptNum = data.d.CustReceiptNum;
               cb(null, service);
             });
 
