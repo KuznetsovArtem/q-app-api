@@ -114,6 +114,20 @@
       "postgresql": {
         "columnName": "causeid"
       }
+    },
+    "receiptnum": {
+      "type": "Number",
+      "required": false,
+      "postgresql": {
+        "columnName": "receiptnum"
+      }
+    },
+    "receiptletter": {
+      "type": "String",
+      "required": false,
+      "postgresql": {
+        "columnName": "receiptletter"
+      }
     }
 
   },

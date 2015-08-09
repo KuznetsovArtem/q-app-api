@@ -170,6 +170,9 @@ module.exports = function(Organizations) {
               "CustReceiptNum": 5
             }*/
 
+            // receiptletter    | character varying(16) |
+            // receiptnum       | integer               |
+
             ServicesModel.create({
               "id": data.d.CustOrderGuid,
               "orderid": data.d.CustOrderGuid,
@@ -182,15 +185,16 @@ module.exports = function(Organizations) {
               "ctrName": ctrName,
               "srvId": srvId,
               "srvName": srvName,
+              "receiptletter" : data.d.CustReceiptLetter,
+              "receiptnum" : data.d.CustReceiptNum,
               "dateTime": dateTime,
               "status": 0,
               "causeid": 0
               //"updatetime": ""
             }, function(err, service) {
               if (err) throw err;
-
-              service.receiptLetter = data.d.CustReceiptLetter;
-              service.receiptNum = data.d.CustReceiptNum;
+//              service.receiptLetter = data.d.CustReceiptLetter;
+//              service.receiptNum = data.d.CustReceiptNum;
               cb(null, service);
             });
 

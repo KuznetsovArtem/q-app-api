@@ -36,7 +36,33 @@ module.exports = function(Services) {
     });
   };
 
-  // srvcenterid -> org_id
+  Services.deleteByUser = function(userId, srvId, cb) {
+    var self = this;
+    self.deleteById(srvId, function(err, data) {
+      if(err) cb(err);
+      cb(null, {
+        error: null,
+        done: true,
+        data: data
+      });
+    });
+
+    // DropCustomer(String organisationGuid, Int32 serviceCenterId, String jobGuid, String comment)
+  };
+
+  Services.updateByUser = function(oldSrvId, orgId, orgName, ctrId, ctrName, srvId, srvName, dateTime, userId, cb) {
+    var app = require('../../server/server');
+    var OrgModel = app.models.organizations;
+    var self = this;
+
+    OrgModel.registerService(orgId, orgName, ctrId, ctrName, srvId, srvName, dateTime, userId, function(err, newService) {
+      if(err) cb(err);
+      self.deleteById(oldSrvId, function(err) { //TODO: use deleteByUser;
+        if(err) cb(err);
+        cb(null, newService);
+      });
+    });
+  };
 
 
   Services.remoteMethod('getUserServices', {
@@ -46,6 +72,33 @@ module.exports = function(Services) {
     ],
     returns: {type: 'object', root: true},
     http: {path: '/get/:userId', verb: 'get'}
+  });
+
+  Services.remoteMethod('deleteByUser', {
+    description: 'Del one',
+    accepts: [
+      {arg: 'userId', type: 'number'},
+      {arg: 'srvId', type: 'string'}
+    ],
+    returns: {type: 'object', root: true},
+    http: {path: '/del/', verb: 'get'}
+  });
+
+  Services.remoteMethod('updateByUser', {
+    description: 'Delete + create new one',
+    accepts: [
+      {arg: 'oldSrvId', type: 'string'},
+      {arg: 'orgId', type: 'number'},
+      {arg: 'orgName', type: 'string'},
+      {arg: 'ctrId', type: 'number'},
+      {arg: 'ctrName', type: 'string'},
+      {arg: 'srvId', type: 'number'},
+      {arg: 'srvName', type: 'string'},
+      {arg: 'dateTime', type: 'string'},
+      {arg: 'userId', type: 'number'}
+    ],
+    returns: {type: 'object', root: true},
+    http: {path: '/update/', verb: 'post'}
   });
 
 };
