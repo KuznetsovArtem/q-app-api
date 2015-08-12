@@ -25,6 +25,7 @@ module.exports = function(Services) {
   Services.disableRemoteMethod('__get__accessTokens', false);
   Services.disableRemoteMethod('__updateById__accessTokens', false);
 
+  var request = require("request");
 
   Services.getUserServices = function(userId, cb) {
     this.find({where: {userId: userId}}, function(err, services) {
@@ -38,13 +39,54 @@ module.exports = function(Services) {
 
   Services.deleteByUser = function(userId, srvId, cb) {
     var self = this;
-    self.deleteById(srvId, function(err, data) {
-      if(err) cb(err);
-      cb(null, {
-        error: null,
-        done: true,
-        data: data
-      });
+
+    var app = require('../../server/server');
+    var OrgModel = app.models.organizations;
+
+    self.findOne({where: {id: srvId}}, function(err, service) {
+      if(err) {
+        throw(err);
+      } else {
+
+        OrgModel.findOne({where: {id: service.orgId}}, function(err, org) {
+          if(err) {
+            throw(err);
+          } else {
+
+            var url = [
+              org.server,
+              "/QueueService.svc/json_pre_reg/DropCustomer",
+              "?organisationGuid={"+ org.guid +"}",
+              "&serviceCenterId=" + service.ctrId,
+              "&jobGuid=" + srvId,
+              "&comment=" + ''
+            ].join('');
+
+
+            request({
+              url: url,
+              json: true,
+              timeout: 7000
+            }, function (error, response, body) {
+              if(error) {
+                cb(error);
+              }
+              if (!error && response.statusCode === 200) {
+
+                self.deleteById(srvId, function(err, data) {
+                  if(err) cb(err);
+                  cb(null, {
+                    error: null,
+                    done: true,
+                    data: data
+                  });
+                });
+
+              }
+            });
+          }
+        });
+      }
     });
 
     // DropCustomer(String organisationGuid, Int32 serviceCenterId, String jobGuid, String comment)
@@ -57,7 +99,7 @@ module.exports = function(Services) {
 
     OrgModel.registerService(orgId, orgName, ctrId, ctrName, srvId, srvName, dateTime, userId, function(err, newService) {
       if(err) cb(err);
-      self.deleteById(oldSrvId, function(err) { //TODO: use deleteByUser;
+      self.deleteByUser(userId, oldSrvId, function(err) {
         if(err) cb(err);
         cb(null, newService);
       });
