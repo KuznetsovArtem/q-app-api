@@ -29,6 +29,10 @@
       "type": "string",
       "required": true
     },
+    "tokenkey": {
+      "type": "string",
+      "required": false
+    },
     "id": {
       "type": "number",
       "id": true,
