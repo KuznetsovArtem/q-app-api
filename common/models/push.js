@@ -4,6 +4,9 @@ module.exports = function(Push) {
 
   Push.register = function(userId, token, cb) {
 
+    var app = require('../../server/server');
+    var Users = app.models.customers;
+
     Users.updateAll( {id: userId}, {tokenkey: token}, function (err, data) {
       if (err) {
         cb(err);
@@ -19,8 +22,7 @@ module.exports = function(Push) {
     var Users = app.models.customers;
     Users.findOne({where: {id: userId}}, function(err, user) {
       if(err){cb(err);}else {
-
-        console.log('USER TOKEN: ', user.tokenkey);
+        
         var options = {
           url: 'https://gcm-http.googleapis.com/gcm/send',
           headers: {
