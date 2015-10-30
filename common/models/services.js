@@ -106,6 +106,72 @@ module.exports = function(Services) {
     });
   };
 
+  Services.pay = function(userId, srvId, cb) {
+    console.log("payment runs", userId);
+
+    // pwd: Ksu_payment2015
+    //=====================
+
+    var self = this;
+    var app = require('../../server/server');
+    var Users = app.models.customers;
+
+    var postData = {
+      "MerchantID": "Your MID",
+      "TerminalID": "Your TID",
+      "Version" : 1,
+      "TotalAmount": "!!! update in srv callback",
+      "locale": "ru",
+      "PurchaseTime" : Date.now(),
+      "OrderID" : "some rand",
+      "PurchaseDesc" : "",
+      "Signature": "Cert here"
+    };
+
+    // get Service by id - price
+    self.findOne({where: {id: srvId}}, function(err, service) {
+      if(err) {
+        throw(err);
+      } else {
+        postData.TotalAmount = service.price; // TODO: ensure price field;
+
+        // get user data
+        Users.findOne({where: {id: userId}}, function(err, user) {
+          if(err){cb(err);} else {
+            // populate payment data with user data
+
+            // postData. = user.
+            // CardType, CardNumber, ExpYear, ExpMonth, CVV2
+            // TODO: populate real data;
+
+            // payment auth + request
+            request.post({
+              url:     'https://secure.upc.ua/ecgtest/enter',
+              form:    postData
+            }, function(error, response, body){
+              // TODO: check response;
+              cb(null, {
+                payment: 'OK',
+                error: error,
+                body: body
+              });
+            });
+          }
+        });
+      }
+    })
+  };
+
+  Services.remoteMethod('pay', {
+    description: 'Payment endpoint',
+    accepts: [
+      {arg: 'userId', type: 'number'},
+      {arg: 'srvId', type: 'string'}
+    ],
+    returns: {type: 'object', root: true},
+    http: {path: '/pay/', verb: 'post'}
+  });
+
 
   Services.remoteMethod('getUserServices', {
     description: 'Get all services for user',
