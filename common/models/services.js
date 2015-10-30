@@ -109,9 +109,6 @@ module.exports = function(Services) {
   Services.pay = function(userId, srvId, cb) {
     console.log("payment runs", userId);
 
-    // pwd: Ksu_payment2015
-    //=====================
-
     var self = this;
     var app = require('../../server/server');
     var Users = app.models.customers;
